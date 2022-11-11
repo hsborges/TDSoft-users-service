@@ -7,10 +7,10 @@ services:
       context: .
       dockerfile: ./Dockerfile
     environment:
-      DATABASE_URL: file:./service.db
+      DATABASE_URL: file:../../storage/service.db
       NODE_ENV: production
       PORT: 80
     volumes:
-      - ./prisma:/app/prisma
+      - ./storage:/app/storage
     ports:
-      - 3000:80
+      - ${PORT:-3000}:80

@@ -5,6 +5,8 @@ import data from './seed.json';
 const prisma = new PrismaClient();
 
 (async () => {
+  data.push({ email: 'admin@gmail.com', firstname: 'Admin', lastname: 'Master' });
+
   for (const { email, firstname, lastname } of data) {
     await prisma.user.upsert({
       where: { email: email },

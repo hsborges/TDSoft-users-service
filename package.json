@@ -10,13 +10,13 @@
     "node": ">=14.16"
   },
   "scripts": {
-    "build": "yarn install && tsc",
-    "seed": "ts-node src/db/seed.ts",
+    "build": "rm -rf dist && yarn install && tsc",
     "dev": "ts-node-dev --respawn --transpile-only --exit-child --watch 'src,docs' src/index.ts",
     "start": "yarn prisma db push && yarn prisma db seed && node dist/index.js"
   },
   "prisma": {
-    "seed": "node dist/prisma/seed.js"
+    "schema": "src/prisma/schema.prisma",
+    "seed": "ts-node src/prisma/seed.ts"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
