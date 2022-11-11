@@ -17,7 +17,7 @@
   },
   "prisma": {
     "schema": "src/prisma/schema.prisma",
-    "seed": "node dist/prisma/seed.ts"
+    "seed": "node dist/prisma/seed.js"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
