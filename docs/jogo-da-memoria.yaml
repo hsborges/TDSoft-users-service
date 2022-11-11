@@ -1,0 +1,320 @@
+openapi: 3.0.0
+
+info:
+  description: |
+    Jogo da memória
+  version: 0.1.0
+  title: Jogo da memoria
+
+paths:
+  /login:
+    post:
+      tags:
+        - Users
+      summary: Realiza login do usuário
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/loginRequest'
+      responses:
+        '200':
+          description: Usuário conectado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/loginResponse'
+        '404':
+          description: Informações incorretas ou usuário não existente
+
+  /passwordRecovery:
+    post:
+      tags:
+        - Users
+      deprecated: true
+      summary: Recuperação de senha do usuário
+      operationId: recoverPassword
+      parameters:
+        - name: email
+          in: query
+          description: email do usuário a ter a senha recuperada
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: 'Email com senha para recuperação enviado com sucesso'
+        '404':
+          description: 'Usuário não existente'
+
+  /user:
+    post:
+      tags:
+        - Users
+      summary: Realiza cadastro de usuário
+      operationId: signup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userRegister'
+      responses:
+        '201':
+          description: Usuário cadastrado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userInfo'
+        '409':
+          description: Usuário já cadastrado
+
+    get:
+      tags:
+        - Users
+      summary: Busca usuário pelo email
+      description: Retorna informações do usuário
+      operationId: getUser
+      parameters:
+        - name: email
+          in: query
+          description: email do usuário buscado
+          required: true
+          schema:
+            $ref: '#/components/schemas/emailProperty'
+      responses:
+        '200':
+          description: Usuário encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userInfo'
+        '404':
+          description: Usuário não encontrado
+
+    put:
+      tags:
+        - Users
+      summary: Atualiza informações alteradas
+      operationId: updateUser
+      parameters:
+        - name: email
+          in: query
+          description: email do usuário alterado
+          required: true
+          schema:
+            $ref: '#/components/schemas/emailProperty'
+      security:
+        - bearerAuth: [profile]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userInfoChange'
+      responses:
+        '200':
+          description: Usuário atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userInfo'
+        '401':
+          description: Operação não autorizada
+
+    delete:
+      tags:
+        - Users
+      summary: Deleta um usuário
+      operationId: deleteUser
+      parameters:
+        - name: email
+          in: query
+          description: email do usuário a ser deletado
+          required: true
+          schema:
+            $ref: '#/components/schemas/emailProperty'
+      security:
+        - bearerAuth: [profile]
+      responses:
+        '200':
+          description: Usuário removido com sucesso
+        '401':
+          description: Operação não autorizada
+
+  /user/block:
+    post:
+      tags:
+        - Users
+      summary: Blocks user
+      description: Blocks the user by email
+      operationId: blockUser
+      parameters:
+        - name: email
+          in: query
+          description: email do usuário a ser bloqueado
+          required: true
+          schema:
+            $ref: '#/components/schemas/emailProperty'
+      security:
+        - bearerAuth: [admin]
+      responses:
+        '200':
+          description: Usuário bloqueado com sucesso
+        '401':
+          description: Operação não autorizada
+        '404':
+          description: Usuário não encontrado
+
+  /user/unblock:
+    post:
+      tags:
+        - Users
+      summary: Unblocks user
+      description: Unblocks the user by email
+      operationId: unblockUser
+      parameters:
+        - name: email
+          in: query
+          description: email do usuário a ser desbloqueado
+          required: true
+          schema:
+            $ref: '#/components/schemas/emailProperty'
+      security:
+        - bearerAuth: [admin]
+      responses:
+        '200':
+          description: Usuário desbloqueado com sucesso
+        '401':
+          description: Operação não autorizada
+        '404':
+          description: Usuário não encontrado
+
+  /search:
+    get:
+      tags:
+        - Users
+      summary: Search
+      description: Search
+      operationId: searchUsers
+      parameters:
+        - name: nome
+          in: query
+          description: email do usuário a ser desbloqueado
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: numero de usuários a serem retornados
+          required: false
+          schema:
+            type: number
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: page
+          in: query
+          description: numero da página
+          required: false
+          schema:
+            type: number
+            minimum: 1
+            default: 1
+      responses:
+        '200':
+          description: Lista de usuários encontrados
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/userInfo'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    emailProperty:
+      type: string
+      example: 'user@gmail.com'
+
+    nameProperty:
+      type: string
+      example: 'User Name'
+
+    passwordProperty:
+      type: string
+      example: 12345
+
+    tokenProperty:
+      type: string
+      format: binary
+      example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImF5bGFuQGJvc2Nhcmluby5jb20iLCJwYXNzd29yZCI6InlhMGdzcWh5NHd6dnV2YjQifQ.yN_8-Mge9mFgsnYHnPEh_ZzNP7YKvSbQ3Alug9HMCsM'
+
+    photoProperty:
+      type: string
+      example: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAE10lEQVRIiZWW32tc1RbHP/ucfeZMMvlRk0zrrzTV2iLVxCjijxZLtDYW2irYvnh7uRcUpN4HweIf0GcRfRf0QREUWhHsg62IFbUgURsTQU16r46KWtM0ycycOb/23us+TCbpaKp1weLA2Xt/P2sv1jrrKK7Afn12vCTaK4dLV/UApL0LVWXc3NXPn4r+6qy63IIcHdMXpoNRCoX9XljY4XeGQyKuBCC5jcS4ikuzT8iydwaG80l19LS5YsCPd49u0T3dR/zuzoMq8AdU4KO0vwo3FsktkuW4JLsgxh0z1doLg59Ozv4loDIyssvvCl/0u4rDKtB4Bb3mDV1mkHzZU4PAtK2nzwxNTb1/WUBlZGSXBy97XeEQgAo1Klgb0BJegaUGpVTFwROXQlYAxw6Mbrl9KjkWFIORljjwpzcAViCSWVxucb6aKvQVD7bS5QGMfTCm3zpYPvLllsKIjbLm5lqKpAZbS1b8UnHnEpxLkMDgXIpog+oQ/IIbcUl0RI6OaQANULxYvH2x3zvw8QP9DJ77kYF8WSm3eIGP3HYb8c6dRNcMAlByP9AZvYdOJwAICmb5aQHQHeZAtefiK8CEBvA71D7lpDxzS8jnd5S498NFejqKANh9+/lm7yG+SrqITDOjJb2N0U07GPZfojt9Ax0YlOfwfIunBKDs8PcBE3r81fGSErUdBJTi0119DE5VuX4hofe+7Xy99xBvf+8DMVo3Ab8Y4dyvGoafZGffDEH68R+LQNguJzeUvCRlvYgMtRbmBotM7OxlXgzRg3t4/3yB+WpEFGfUG02P4oz5asTJcyGL+sCaRYBjKOlJy9r3VI+IdCkBVDPCr3b0sflbS3j9jcx+UyfNHLmzbefTzDH7S515u5UNuhdnlla1ReGs7rKiuteswaQccnbvADcC1TgjM5bUurY9a71byzzrpCqZqottb+rvbu3g4rVL9Jc01TimGqe/85j+kqbfn2mLvmUm9+u+kppXDPlNjKsAILKyIRfHRHaGfXd0ICZmqb7U5mJiHt5mWGeOtwk7Udg8wBq/UqyGc96pf52KJHdnbOoQq1YhSjF9cZJ43UccHitzQzcEpkFgGmzuVRweK3PX1W+1VVAz9z4m17hcn1EPnY80gOrwT0jinsJzZfzVVOUI7/18guH1P/HY3lHIBpoLhUUuLL1OR/ImFNvF87RA1gjnfElPwHInJ33JWfe1Ph4673ABIFAov9kXOcIX818wrSYpep0AXKhU+Xd5lsFi9AfxPC6QJ/r4VRNbz8Lp5rfo9P2nDYH3XNZwU1ldaEuXrIJqLmKhVuPmrip7yvNtOW+Jx7XiTH1Rv9AaQCtTpPLOfxc37h6atTm7PU9146DZGx44UEoQq/BEeLyvwtbOGiYvkKcheRaQ1oqkjXAmbgT/2fyPc5+1dFfHFPDDu99/t/GhTZNO1KhLZIOIAgcigrJgjXCPXuDRzrnliEOyRoEkKhJH4VSe+U9vfmymbeC0AVqQoUduOilGQpu661wm3bYhiCh6csOhcI51zpFERZJ6gUYt/C2N9WtKzDOXRt6yyw79sQ/GtPpfeEt9LnvU99iBp4b2dNZL/+xd9J2h6pyqWKs+Iffe3nZ+/fTfGvq/t/FXx0tJyvonop+77wyd31fZuHClvy3/B2DsvRfTieqAAAAAAElFTkSuQmCC
+
+    userInfo:
+      type: object
+      required:
+        - email
+        - name
+      properties:
+        email:
+          $ref: '#/components/schemas/emailProperty'
+        name:
+          $ref: '#/components/schemas/nameProperty'
+        photo:
+          $ref: '#/components/schemas/photoProperty'
+
+    userRegister:
+      allOf:
+        - $ref: '#/components/schemas/userInfo'
+        - type: object
+          required:
+            - password
+          properties:
+            password:
+              $ref: '#/components/schemas/passwordProperty'
+
+    loginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          $ref: '#/components/schemas/emailProperty'
+        password:
+          $ref: '#/components/schemas/passwordProperty'
+
+    loginResponse:
+      type: object
+      properties:
+        token:
+          $ref: '#/components/schemas/tokenProperty'
+
+    userInfoChange:
+      allOf:
+        - $ref: '#/components/schemas/userInfo'
+        - type: object
+          properties:
+            password:
+              $ref: '#/components/schemas/passwordProperty'
+
+    authBody:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          $ref: '#/components/schemas/tokenProperty'
+
+servers:
+  - url: '{server}/api'
+    description: localhost testing
